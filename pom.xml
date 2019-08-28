@@ -17,6 +17,7 @@
 		<java.version>11</java.version>
 		<git-commit-id-plugin.version>3.0.1</git-commit-id-plugin.version>
 		<springfox-swagger-ui.version>2.9.2</springfox-swagger-ui.version>
+		<commons-lang3.version>3.9</commons-lang3.version>
 	</properties>
 
 	<dependencies>
@@ -34,6 +35,12 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${commons-lang3.version}</version>
+		</dependency>
+
 
 		<!--todo swagger for API docs-->
 		<!--<dependency>-->
