@@ -7,7 +7,7 @@ import java.util.Map;
 
 //todo add checkstyle and PMD
 public class WinnerCalculator {
-    private static final Map<Gesture, Gesture> WIN_MATRIX = Map.of(
+    public static final Map<Gesture, Gesture> WIN_MATRIX = Map.of(
             Gesture.PAPER, Gesture.SCISSORS,
             Gesture.SCISSORS, Gesture.ROCK,
             Gesture.ROCK, Gesture.PAPER
