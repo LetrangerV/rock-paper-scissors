@@ -19,7 +19,7 @@ public class MarkovChainBasedAi implements GameAi {
     @Override //todo tests
     public Gesture calculateResult(Gesture userInput) {
         if (userInput == null) { //first round
-            markovChain.createProbabilitiesMatrix();
+//            markovChain.createProbabilitiesMatrix(); //todo actually user input is never null. need to init somewhere else. postconstruct?
         } else {
             pairDiff2 = pairDiff1;
             pairDiff1 = new CurrentState(userInput, aiOutput);

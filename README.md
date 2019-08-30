@@ -1,5 +1,8 @@
 #Rock-paper-scissors web application
 
+##Assumptions
+
+
 ##Build
 `./mvnw clean package` under JDK 11
 

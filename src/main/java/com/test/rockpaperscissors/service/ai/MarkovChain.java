@@ -5,6 +5,7 @@ import com.test.rockpaperscissors.model.Gesture;
 import com.test.rockpaperscissors.model.GestureStatistics;
 import lombok.Data;
 
+import javax.annotation.PostConstruct;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,11 +24,11 @@ public class MarkovChain {
 
     private int order;
     private float decay;
-    private Map<CurrentState, Map<Gesture, GestureStatistics>> statsForGesture;
+    private Map<CurrentState, Map<Gesture, GestureStatistics>> transitionProbabilities;
 
+    @PostConstruct
     public Map<CurrentState, Map<Gesture, GestureStatistics>> createProbabilitiesMatrix() {
-        statsForGesture = new ConcurrentHashMap<>();
-        final Map<CurrentState, Map<Gesture, GestureStatistics>> transitionProbabilities = new ConcurrentHashMap<>();
+        transitionProbabilities = new ConcurrentHashMap<>();
         transitionProbabilities.put(new CurrentState(PAPER, PAPER), createGestureStatistics());
         transitionProbabilities.put(new CurrentState(PAPER, ROCK), createGestureStatistics());
         transitionProbabilities.put(new CurrentState(PAPER, SCISSORS), createGestureStatistics());
@@ -50,8 +51,7 @@ public class MarkovChain {
 
     //todo tests
     public void updateProbabilitiesMatrix(CurrentState state, Gesture userInput) {
-        Map<Gesture, GestureStatistics> gestureWithStats = this.statsForGesture.get(state);
-//        GestureStatistics statForGesture = gestureWithStats.get(userInput);
+        Map<Gesture, GestureStatistics> gestureWithStats = this.transitionProbabilities.get(state);
         for (Map.Entry<Gesture, GestureStatistics> entry : gestureWithStats.entrySet()) {
             entry.getValue().setNumberOfObservations(decay * entry.getValue().getNumberOfObservations());
         }
@@ -70,7 +70,7 @@ public class MarkovChain {
 
     //todo tests
     public Gesture predictPlayerMove(CurrentState state) {
-        Map<Gesture, GestureStatistics> gestureWithStats = getStatsForGesture().get(state);
+        Map<Gesture, GestureStatistics> gestureWithStats = getTransitionProbabilities().get(state);
         Double maxProbability = gestureWithStats.values().stream().map(GestureStatistics::getProbability).max(Comparator.comparingDouble(x -> x)).orElse(0d);
         Double minProbability = gestureWithStats.values().stream().map(GestureStatistics::getProbability).min(Comparator.comparingDouble(x -> x)).orElse(0d);
 
