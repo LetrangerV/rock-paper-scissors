@@ -23,7 +23,7 @@ public class GameController {
     //todo tests
     @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
     public Mono<GameResultDto> startGame(@RequestBody GameInputDto inputDto) {
-        Pair<Gesture, GameResult> gameResult = gameService.play(inputDto.getUserInput());//todo ignore for now, not implemented
+        Pair<Gesture, GameResult> gameResult = gameService.play(inputDto.getUserInput());
 
         return Mono.just(
                 GameResultDto.builder()
@@ -33,4 +33,6 @@ public class GameController {
                         .build()
         );
     }
+
+    //https://www.baeldung.com/spring-5-reactive-websockets
 }

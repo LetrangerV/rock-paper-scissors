@@ -6,19 +6,18 @@ import com.test.rockpaperscissors.service.WinnerCalculator;
 
 public class MarkovChainBasedAi implements GameAi {
     private final MarkovChain markovChain;
+    private final RandomAi randomAi;
     private CurrentState pairDiff1;
     private CurrentState pairDiff2; //todo concurrent session state management?
+    private Gesture aiOutput;
 
-    public MarkovChainBasedAi(MarkovChain markovChain) {
+    public MarkovChainBasedAi(MarkovChain markovChain, RandomAi randomAi) {
         this.markovChain = markovChain;
+        this.randomAi = randomAi;
     }
 
     @Override //todo tests
     public Gesture calculateResult(Gesture userInput) {
-        pairDiff1 = null;
-        pairDiff2 = null;
-        Gesture aiOutput = null;
-
         if (userInput == null) { //first round
             markovChain.createProbabilitiesMatrix();
         } else {
@@ -30,7 +29,7 @@ public class MarkovChainBasedAi implements GameAi {
             markovChain.updateProbabilitiesMatrix(pairDiff2, userInput);
             aiOutput = WinnerCalculator.WIN_MATRIX.get(markovChain.predictPlayerMove(pairDiff1));
         } else {
-            aiOutput = Gesture.PAPER; //todo make random predictor here
+            aiOutput = randomAi.calculateResult(userInput);
         }
 
         return aiOutput;

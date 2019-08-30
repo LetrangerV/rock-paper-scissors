@@ -14,6 +14,13 @@ import static com.test.rockpaperscissors.model.Gesture.*;
 @Data
 public class MarkovChain {
     public static final double DOUBLE_COMPARISON_PRECISION = 0.000000001;
+
+    private final RandomAi randomAi;
+
+    public MarkovChain(RandomAi randomAi) {
+        this.randomAi = randomAi;
+    }
+
     private int order;
     private float decay;
     private Map<CurrentState, Map<Gesture, GestureStatistics>> statsForGesture;
@@ -68,7 +75,7 @@ public class MarkovChain {
         Double minProbability = gestureWithStats.values().stream().map(GestureStatistics::getProbability).min(Comparator.comparingDouble(x -> x)).orElse(0d);
 
         if (compareDoublesWithPrecision(maxProbability, minProbability)) {
-            return PAPER; //todo randomPredictor
+            return randomAi.calculateResult(state.getFirst());
         }
 
         for (Map.Entry<Gesture, GestureStatistics> entry : gestureWithStats.entrySet()) {
