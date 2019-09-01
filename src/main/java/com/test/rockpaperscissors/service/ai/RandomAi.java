@@ -13,7 +13,7 @@ public class RandomAi implements GameAi {
     private static final Random RANDOM = new Random();
 
     @Override
-    public Gesture calculateResult(Gesture userInput) {
+    public Gesture calculateAiGesture(Gesture userInput) {
         return VALUES.get(RANDOM.nextInt(SIZE));
     }
 }

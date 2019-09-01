@@ -75,7 +75,7 @@ public class MarkovChain {
         Double minProbability = gestureWithStats.values().stream().map(GestureStatistics::getProbability).min(Comparator.comparingDouble(x -> x)).orElse(0d);
 
         if (compareDoublesWithPrecision(maxProbability, minProbability)) {
-            return randomAi.calculateResult(state.getFirst());
+            return randomAi.calculateAiGesture(state.getFirst());
         }
 
         for (Map.Entry<Gesture, GestureStatistics> entry : gestureWithStats.entrySet()) {

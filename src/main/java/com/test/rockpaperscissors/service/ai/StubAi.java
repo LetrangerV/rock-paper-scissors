@@ -4,7 +4,7 @@ import com.test.rockpaperscissors.model.Gesture;
 
 public class StubAi implements GameAi {
     @Override
-    public Gesture calculateResult(Gesture userInput) {
+    public Gesture calculateAiGesture(Gesture userInput) {
         return Gesture.PAPER;
     }
 }
