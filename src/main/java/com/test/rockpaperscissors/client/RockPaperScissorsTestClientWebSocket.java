@@ -8,6 +8,7 @@ import com.test.rockpaperscissors.model.Gesture;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -23,7 +24,15 @@ public class RockPaperScissorsTestClientWebSocket {
         client.execute(
                 URI.create("ws://localhost:8080/rock-paper-scissors"),
                 session -> session.send(
-                        Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))))
+                        Flux.concat(
+                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.START, Gesture.NONE)))),
+                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))),
+                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))),
+                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))),
+                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.SCISSORS)))),
+                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.END, Gesture.NONE))))
+                        )
+                        )
                         .thenMany(session.receive()
                                 .map(WebSocketMessage::getPayloadAsText)
                                 .log())
