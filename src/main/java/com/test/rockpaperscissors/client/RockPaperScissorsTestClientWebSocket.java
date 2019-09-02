@@ -30,6 +30,12 @@ public class RockPaperScissorsTestClientWebSocket {
                                 Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))),
                                 Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))),
                                 Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.SCISSORS)))),
+                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.SCISSORS)))),
+                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.SCISSORS)))),
+                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.SCISSORS)))),
+                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))),
+                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))),
+                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))),
                                 Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.END, Gesture.NONE))))
                         )
                         )

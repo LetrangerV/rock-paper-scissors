@@ -40,7 +40,7 @@ public class RockPaperScissorsWebSocketHandler implements WebSocketHandler {
             GameStateDto gameStateDto = readMessage(text);
             switch (gameStateDto.getState()) { //todo java 12 switch expression
                 case START:
-                    log.info("START GAME! WOOHOOO!");
+                    log.info("START GAME! WOOHOOO!"); //todo make logging async
                     final MarkovChain markovChain = new MarkovChain();
                     final Context sessionContext = new Context(
                             markovChain.getTransitionProbabilities(),
