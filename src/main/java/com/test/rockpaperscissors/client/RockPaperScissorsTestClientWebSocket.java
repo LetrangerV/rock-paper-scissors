@@ -13,6 +13,8 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 //todo: temporary websocket client for test purpose
 public class RockPaperScissorsTestClientWebSocket {
@@ -21,6 +23,17 @@ public class RockPaperScissorsTestClientWebSocket {
     public static void main(String[] args) {
 
         WebSocketClient client = new ReactorNettyWebSocketClient();
+
+        ExecutorService service = Executors.newFixedThreadPool(10);
+        for (int i = 0; i < 20; i++) {
+            service.submit(() -> {
+                executeSingleClient(client);
+            });
+        }
+        service.shutdown();
+    }
+
+    private static void executeSingleClient(WebSocketClient client) {
         client.execute(
                 URI.create("ws://localhost:8080/rock-paper-scissors"),
                 session -> session.send(
