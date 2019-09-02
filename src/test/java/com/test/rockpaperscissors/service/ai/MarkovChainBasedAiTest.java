@@ -1,5 +1,6 @@
 package com.test.rockpaperscissors.service.ai;
 
+import com.test.rockpaperscissors.model.Context;
 import com.test.rockpaperscissors.model.CurrentState;
 import com.test.rockpaperscissors.model.Gesture;
 import org.junit.Assert;
@@ -11,8 +12,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,36 +21,40 @@ import static org.mockito.Mockito.when;
 public class MarkovChainBasedAiTest {
     private MarkovChainBasedAi underTest;
     @Mock
-    private MarkovChain markovChain;
+    private MarkovChainBasedPredictor markovChainBasedPredictor;
     @Mock
     private RandomAi randomAi;
+    @Mock
+    private TransitionMatrixUpdater transitionMatrixUpdater;
 
     @Before
     public void setUp() {
-        underTest = new MarkovChainBasedAi(markovChain, randomAi);
+        underTest = new MarkovChainBasedAi(markovChainBasedPredictor, randomAi, transitionMatrixUpdater);
     }
 
     @Test
     public void testCalculateResultFirstRound() {
-        when(randomAi.calculateAiGesture(Gesture.ROCK)).thenReturn(Gesture.PAPER);
-        Gesture result = underTest.calculateAiGesture(Gesture.ROCK);
+        Context sessionContext = mock(Context.class);
+        when(randomAi.calculateAiGesture(sessionContext, Gesture.ROCK)).thenReturn(Gesture.PAPER);
+        Gesture result = underTest.calculateAiGesture(sessionContext, Gesture.ROCK);
 
-        verify(randomAi).calculateAiGesture(Gesture.ROCK);
-        verify(markovChain).updateProbabilitiesMatrix(any(CurrentState.class), eq(Gesture.ROCK));
-        verify(markovChain, never()).predictPlayerMove(any(CurrentState.class));
+        verify(randomAi).calculateAiGesture(sessionContext, Gesture.ROCK);
+        verify(transitionMatrixUpdater).updateProbabilitiesMatrix(any(Context.class), eq(Gesture.ROCK));
+        verify(markovChainBasedPredictor, never()).predictPlayerMove(any(Context.class));
         Assert.assertEquals(Gesture.PAPER, result);
     }
 
     @Test
     public void testCalculateResultSecondRound() {
-        when(randomAi.calculateAiGesture(Gesture.ROCK)).thenReturn(Gesture.PAPER);
-        underTest.calculateAiGesture(Gesture.ROCK);
+        Context sessionContext = mock(Context.class);
+        when(sessionContext.getPreviousState()).thenReturn(mock(CurrentState.class));
+        when(randomAi.calculateAiGesture(sessionContext, Gesture.ROCK)).thenReturn(Gesture.PAPER);
 
-        when(markovChain.predictPlayerMove(any(CurrentState.class))).thenReturn(Gesture.PAPER);
-        Gesture secondResult = underTest.calculateAiGesture(Gesture.ROCK);
+        when(markovChainBasedPredictor.predictPlayerMove(any(Context.class))).thenReturn(Gesture.PAPER);
+        Gesture result = underTest.calculateAiGesture(sessionContext, Gesture.ROCK);
 
-        verify(markovChain, times(2)).updateProbabilitiesMatrix(any(CurrentState.class), eq(Gesture.ROCK));
-        verify(markovChain).predictPlayerMove(any(CurrentState.class));
-        Assert.assertEquals(Gesture.SCISSORS, secondResult); //we predict user's most probable move as PAPER and AI plays SCISSORS to win
+        verify(transitionMatrixUpdater).updateProbabilitiesMatrix(any(Context.class), eq(Gesture.ROCK));
+        verify(markovChainBasedPredictor).predictPlayerMove(any(Context.class));
+        Assert.assertEquals(Gesture.SCISSORS, result); //we predict user's most probable move as PAPER and AI plays SCISSORS to win
     }
 }

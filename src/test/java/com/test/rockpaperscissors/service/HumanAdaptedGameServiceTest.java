@@ -1,5 +1,6 @@
 package com.test.rockpaperscissors.service;
 
+import com.test.rockpaperscissors.model.Context;
 import com.test.rockpaperscissors.model.GameResult;
 import com.test.rockpaperscissors.model.Gesture;
 import com.test.rockpaperscissors.service.ai.GameAi;
@@ -28,9 +29,10 @@ public class HumanAdaptedGameServiceTest {
 
     @Test
     public void testPlay() {
-        when(gameAi.calculateAiGesture(Gesture.ROCK)).thenReturn(Gesture.PAPER);
+        Context sessionContext = new Context(null, null, null);
+        when(gameAi.calculateAiGesture(sessionContext, Gesture.ROCK)).thenReturn(Gesture.PAPER);
         when(winnerCalculator.calculateResultForFirst(Gesture.ROCK, Gesture.PAPER)).thenReturn(GameResult.LOST);
-        Pair<Gesture, GameResult> result = underTest.play(Gesture.ROCK);
+        Pair<Gesture, GameResult> result = underTest.play(sessionContext, Gesture.ROCK);
 
         assertEquals(Gesture.PAPER, result.getLeft());
         assertEquals(GameResult.LOST, result.getRight());

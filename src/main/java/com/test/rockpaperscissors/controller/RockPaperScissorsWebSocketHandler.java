@@ -4,9 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.test.rockpaperscissors.dto.GameResultDto;
 import com.test.rockpaperscissors.dto.GameStateDto;
 import com.test.rockpaperscissors.dto.UserStats;
+import com.test.rockpaperscissors.model.Context;
+import com.test.rockpaperscissors.model.CurrentState;
 import com.test.rockpaperscissors.model.GameResult;
 import com.test.rockpaperscissors.model.Gesture;
 import com.test.rockpaperscissors.service.GameService;
+import com.test.rockpaperscissors.service.ai.MarkovChain;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.web.reactive.socket.CloseStatus;
@@ -38,30 +41,29 @@ public class RockPaperScissorsWebSocketHandler implements WebSocketHandler {
             switch (gameStateDto.getState()) { //todo java 12 switch expression
                 case START:
                     log.info("START GAME! WOOHOOO!");
-                    //
+                    final MarkovChain markovChain = new MarkovChain();
+                    final Context sessionContext = new Context(
+                            markovChain.getTransitionProbabilities(),
+                            new CurrentState(Gesture.NONE, Gesture.NONE),
+                            new UserStats(0L, 0L, 0L, 0L)
+                    );
+                    webSocketSession.getAttributes().put(webSocketSession.getId(), sessionContext);
                     break;
                 case IN_PROGRESS:
                     log.info("PLAY GAME! WOOHOOO!");
                     final String sessionId = webSocketSession.getId();
-                    final UserStats currentStats = (UserStats) webSocketSession.getAttributes().get(sessionId);
+                    final Context sessionContext1 = (Context) webSocketSession.getAttributes().get(sessionId);
+                    final UserStats currentStats = sessionContext1.getUserStats();
+                    GameResultDto gameResult = produceGameResult(sessionContext1, gameStateDto);
 
-                    GameResultDto gameResult = produceGameResult(gameStateDto);
-
-                    if (currentStats == null) {
-                        final UserStats userStats = new UserStats(0L, 0L, 0L, 0L);
-                        updateUserStats(gameResult, userStats);
-                        log.info("Current statistics: {}", userStats);
-                        webSocketSession.getAttributes().put(sessionId, userStats); //todo put matrix into session?
-                    } else {
-                        updateUserStats(gameResult, currentStats);
-                        log.info("Current statistics: {}", currentStats);
-                    }
+                    updateUserStats(gameResult, currentStats);
+                    log.info("Current statistics: {}", currentStats);
 
                     break;
                 case END:
                     log.info("END GAME! WOOHOOO!");
-                    final UserStats finalStats = (UserStats) webSocketSession.getAttributes().get(webSocketSession.getId());
-                    log.info("Your final statistics: {}", finalStats);
+                    final Context endGameContext = (Context) webSocketSession.getAttributes().get(webSocketSession.getId());
+                    log.info("Your final statistics: {}", endGameContext.getUserStats());
                     webSocketSession.close(CloseStatus.NORMAL);
                     break;
                 default:
@@ -69,13 +71,12 @@ public class RockPaperScissorsWebSocketHandler implements WebSocketHandler {
             }
         }) //do something with each message
                 .doOnError((ex) -> log.info("Oops error", ex))
-//                .concatMap(message -> {new WebSocketMessage(message).getPayloadAsText();}) //perform nested async operations that use the message content
                 .map(WebSocketMessage::getPayloadAsText)
                 .then(); //return a Mono<Void that completes when receiving completes
     }
 
-    private GameResultDto produceGameResult(GameStateDto gameStateDto) {
-        Pair<Gesture, GameResult> result = gameService.play(gameStateDto.getUserInput());
+    private GameResultDto produceGameResult(Context sessionContext, GameStateDto gameStateDto) {
+        Pair<Gesture, GameResult> result = gameService.play(sessionContext, gameStateDto.getUserInput());
         log.info(
                 String.format("Player: %s; Computer: %s; Your result: %s",
                         gameStateDto.getUserInput(), result.getLeft(), result.getRight())

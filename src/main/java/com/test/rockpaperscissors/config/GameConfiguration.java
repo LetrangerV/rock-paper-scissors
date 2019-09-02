@@ -1,6 +1,5 @@
 package com.test.rockpaperscissors.config;
 
-import com.test.rockpaperscissors.controller.GameController;
 import com.test.rockpaperscissors.controller.RockPaperScissorsWebSocketHandler;
 import com.test.rockpaperscissors.service.GameService;
 import com.test.rockpaperscissors.service.HumanAdaptedGameService;
@@ -25,24 +24,25 @@ public class GameConfiguration {
     }
 
     @Bean
-    MarkovChain markovChain(RandomAi randomAi) {
-        return new MarkovChain(randomAi);
+    MarkovChainBasedPredictor markovChainBasedPredictor(RandomAi randomAi) {
+        return new MarkovChainBasedPredictor(randomAi);
     }
 
     @Bean
-    GameAi gameAi(MarkovChain markovChain, RandomAi randomAi) {
-        return new MarkovChainBasedAi(markovChain, randomAi);
+    TransitionMatrixUpdater transitionMatrixUpdater() {
+        return new TransitionMatrixUpdater();
+    }
+
+    @Bean
+    GameAi gameAi(MarkovChainBasedPredictor markovChainBasedPredictor, RandomAi randomAi,
+                  TransitionMatrixUpdater transitionMatrixUpdater) {
+        return new MarkovChainBasedAi(markovChainBasedPredictor, randomAi, transitionMatrixUpdater);
     }
 
     @Bean
     GameService gameService(WinnerCalculator winnerCalculator,
                             GameAi gameAi) {
         return new HumanAdaptedGameService(winnerCalculator, gameAi);
-    }
-
-    @Bean
-    GameController gameController(GameService gameService) {
-        return new GameController(gameService);
     }
 
     @Bean

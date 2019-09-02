@@ -1,5 +1,6 @@
 package com.test.rockpaperscissors.service;
 
+import com.test.rockpaperscissors.model.Context;
 import com.test.rockpaperscissors.model.GameResult;
 import com.test.rockpaperscissors.model.Gesture;
 import com.test.rockpaperscissors.service.ai.GameAi;
@@ -17,8 +18,8 @@ public class HumanAdaptedGameService implements GameService {
     }
 
     @Override
-    public Pair<Gesture, GameResult> play(@NonNull Gesture userInput) {
-        Gesture aiInput = gameAi.calculateAiGesture(userInput);
+    public synchronized Pair<Gesture, GameResult> play(Context sessionContext, @NonNull Gesture userInput) {
+        Gesture aiInput = gameAi.calculateAiGesture(sessionContext, userInput);
         GameResult result = winnerCalculator.calculateResultForFirst(userInput, aiInput);
         return ImmutablePair.of(aiInput, result);
     }
