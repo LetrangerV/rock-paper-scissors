@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class RandomAi implements GameAi {
     private static final List<Gesture> VALUES =
-            Collections.unmodifiableList(List.of(Gesture.values()));
+            Collections.unmodifiableList(List.of(Gesture.PAPER, Gesture.ROCK, Gesture.SCISSORS));
     private static final int SIZE = VALUES.size();
     private static final Random RANDOM = new Random();
 
