@@ -8,7 +8,7 @@ import java.util.Comparator;
 import java.util.Map;
 
 public class MarkovChainBasedPredictor {
-    public static final double DOUBLE_COMPARISON_PRECISION = 0.000000001;
+    private static final double DOUBLE_COMPARISON_PRECISION = 0.000000001;
 
     private final RandomAi randomAi;
 
