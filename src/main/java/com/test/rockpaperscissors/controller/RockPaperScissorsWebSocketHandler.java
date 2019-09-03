@@ -29,16 +29,13 @@ public class RockPaperScissorsWebSocketHandler implements WebSocketHandler {
         this.gameService = gameService;
     }
 
-    //todo do we need to store user id or session is enough?
-    //how do we create separate matrices for each user? spring scope = prototype/session? how much memory could it take?
-
     @Override
     public Mono<Void> handle(WebSocketSession webSocketSession) {
         return webSocketSession.receive() //access the stream of inbound messages
         .doOnNext(message -> {
             final String text = message.getPayloadAsText();
             GameStateDto gameStateDto = readMessage(text);
-            switch (gameStateDto.getState()) { //todo java 12 switch expression
+            switch (gameStateDto.getState()) {
                 case START:
                     log.info("START GAME! WOOHOOO!"); //todo make logging async
                     final MarkovChain markovChain = new MarkovChain();
