@@ -1,0 +1,10 @@
+{
+  "simulation": "computerdatabase.RockPaperScissorsSimulation",
+  "simulationId": "rockpaperscissorssimulation",
+  "start": 1567518256608,
+  "description": "9000 concurrent users during 10 minutes",
+  "scenarios": ["rock-paper-scissors concurrent users scenario"],
+  "assertions": [
+
+  ]
+}
