@@ -24,12 +24,19 @@ Gatling was used for load/performance testing.
 ### TLDR
 In test scenario each user plays 30 turns with 1 second between each turn.
 
-Results of load testing could be found in `XXX` directory of this repo.
-For hardware configuration mentioned above server could accept up to **X** concurrent users.
+Results of load testing could be found in `9000_concurrent_users_during_10_minutes` directory of this repo, `index.html` file.
+100% of 5724920 requests done by 168380 users in 10 minutes. 99th percentile for response time is 24 ms.
+For hardware configuration mentioned above server could accept up to **9000** concurrent users.
 
-Considering average load as **Y** users and peak as **Z** users we could have **** active users
-per day.
+Considering peak load of **9000** concurrent users each having 30 seconds sessions, we get 18000 users per minute,
+or 1080000 user per hour, or 25920000 users daily. Of course, during day user activity will be changing but we don't have
+ any diagrams showing activity profile, so we go with simplest case. This is more than 1000000 users requested in the task.
+ 
+Test for 10000 concurrent users has shown that response time became to grow significantly and there were
+something like 0.01% of failed requests.
 
+There are no requirements on peak load so it is difficult to say if 9000 concurrent users is enough.
+Better hardware will provide better results.
 
 ### Environment setup for running Gatling script:
 1. Install Scala (tested on 2.13.0) https://www.scala-lang.org/download/ and add it to PATH environment variable
