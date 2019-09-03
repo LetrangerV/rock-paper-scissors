@@ -38,7 +38,7 @@ public class MarkovChainBasedAi implements GameAi {
         return aiOutput;
     }
 
-    private void updateGameState(Context sessionContext, @NonNull Gesture userInput, Gesture aiOutput) {
+    private synchronized void updateGameState(Context sessionContext, @NonNull Gesture userInput, Gesture aiOutput) {
         sessionContext.setPreviousState(new CurrentState(userInput, aiOutput));
         matrixUpdater.updateProbabilitiesMatrix(sessionContext, userInput);
     }

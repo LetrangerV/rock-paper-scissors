@@ -61,6 +61,8 @@
 			<!--<version>${springfox-swagger-ui.version}</version>-->
 		<!--</dependency>-->
 
+		<!--todo replace Maps with Trove Maps for better performance and optimized memory consumption-->
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>

@@ -9,7 +9,7 @@ import java.util.Map;
 public class TransitionMatrixUpdater {
     private float decay;
 
-    public void updateProbabilitiesMatrix(Context sessionContext, Gesture userInput) {
+    public synchronized void updateProbabilitiesMatrix(Context sessionContext, Gesture userInput) {
         Map<Gesture, GestureStatistics> gestureWithStats = sessionContext.getTransitionProbabilities().get(sessionContext.getPreviousState());
         for (Map.Entry<Gesture, GestureStatistics> entry : gestureWithStats.entrySet()) {
             entry.getValue().setNumberOfObservations(decay * entry.getValue().getNumberOfObservations());
