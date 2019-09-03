@@ -22,7 +22,7 @@ import java.io.IOException;
 
 @Slf4j
 public class RockPaperScissorsWebSocketHandler implements WebSocketHandler {
-    private static final ObjectMapper json = new ObjectMapper();
+    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     private final GameService gameService;
 
     public RockPaperScissorsWebSocketHandler(GameService gameService) {
@@ -37,7 +37,7 @@ public class RockPaperScissorsWebSocketHandler implements WebSocketHandler {
             GameStateDto gameStateDto = readMessage(text);
             switch (gameStateDto.getState()) {
                 case START:
-                    log.info("START GAME! WOOHOOO!"); //todo make logging async
+                    log.debug("START GAME! WOOHOOO!"); //todo make logging async
                     final MarkovChain markovChain = new MarkovChain();
                     final Context sessionContext = new Context(
                             markovChain.getTransitionProbabilities(),
@@ -47,34 +47,33 @@ public class RockPaperScissorsWebSocketHandler implements WebSocketHandler {
                     webSocketSession.getAttributes().put(webSocketSession.getId(), sessionContext);
                     break;
                 case IN_PROGRESS:
-                    log.info("PLAY GAME! WOOHOOO!");
+                    log.debug("PLAY GAME! WOOHOOO!");
                     final String sessionId = webSocketSession.getId();
                     final Context sessionContext1 = (Context) webSocketSession.getAttributes().get(sessionId);
                     final UserStats currentStats = sessionContext1.getUserStats();
                     GameResultDto gameResult = produceGameResult(sessionContext1, gameStateDto);
 
                     updateUserStats(gameResult, currentStats);
-                    log.info("Current statistics: {}", currentStats);
-
+                    log.debug("Current statistics: {}", currentStats);
                     break;
                 case END:
-                    log.info("END GAME! WOOHOOO!");
+                    log.debug("END GAME! WOOHOOO!");
                     final Context endGameContext = (Context) webSocketSession.getAttributes().get(webSocketSession.getId());
-                    log.info("Your final statistics: {}", endGameContext.getUserStats());
+                    log.debug("Your final statistics: {}", endGameContext.getUserStats());
                     webSocketSession.close(CloseStatus.NORMAL);
                     break;
                 default:
                     throw new RuntimeException("Unsupported game state.");
             }
         }) //do something with each message
-                .doOnError((ex) -> log.info("Oops error", ex))
+                .doOnError((ex) -> log.error("There was an error: ", ex))
                 .map(WebSocketMessage::getPayloadAsText)
                 .then(); //return a Mono<Void that completes when receiving completes
     }
 
     private GameResultDto produceGameResult(Context sessionContext, GameStateDto gameStateDto) {
         Pair<Gesture, GameResult> result = gameService.play(sessionContext, gameStateDto.getUserInput());
-        log.info(
+        log.debug(
                 String.format("Player: %s; Computer: %s; Your result: %s",
                         gameStateDto.getUserInput(), result.getLeft(), result.getRight())
         );
@@ -104,7 +103,7 @@ public class RockPaperScissorsWebSocketHandler implements WebSocketHandler {
 
     private GameStateDto readMessage(String message) {
         try {
-            return json.readValue(message, GameStateDto.class);
+            return JSON_MAPPER.readValue(message, GameStateDto.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
