@@ -11,6 +11,11 @@
 non-random distribution of moves which we want to adapt to.
 * deployment configuration is out of scope
 
+## Configuration
+Except standard spring application properties there are following properties:
+* decay - float value in range from 0 to 1. Sets memory decay for Markov's chain. 1 is perfect memory.
+Decay in range from 0 to 1 -> model would forget earlier observations and adapt to changes faster
+
 ## Build
 `./mvnw clean package` under JDK 11
 
