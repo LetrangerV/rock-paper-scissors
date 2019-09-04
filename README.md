@@ -33,12 +33,46 @@ Results of load testing could be found in `9000_concurrent_users_during_10_minut
 100% of 5724920 requests done by 168380 users in 10 minutes. 99th percentile for response time is 24 ms.
 For hardware configuration mentioned above server could accept up to **9000** concurrent users.
 
-Considering peak load of **9000** concurrent users each having 30 seconds sessions, we get 18000 users per minute,
+Considering peak load of **9000** concurrent users each having 30 seconds sessions during 10 minutes, we get 18000 users per minute,
 or 1080000 user per hour, or 25920000 users daily. Of course, during day user activity will be changing but we don't have
  any diagrams showing activity profile, so we go with simplest case. This is more than 1000000 users requested in the task.
  
-Test for 10000 concurrent users has shown that response time became to grow significantly and there were
-something like 0.01% of failed requests.
+Quick (1 minite) test for **12000** concurrent users:
+```
+2019-09-04 21:08:09                                          78s elapsed
+---- Requests ------------------------------------------------------------------
+> Global                                                   (OK=816000 KO=0     )
+> RockPaperScissors                                        (OK=816000 KO=0     )
+
+---- rock-paper-scissors concurrent users scenario -----------------------------
+          active: 0      / done: 24000 
+================================================================================
+
+Simulation computerdatabase.RockPaperScissorsSimulation completed in 78 seconds
+Parsing log file(s)...
+Parsing log file(s) done
+Generating reports...
+
+================================================================================
+---- Global Information --------------------------------------------------------
+> request count                                     816000 (OK=816000 KO=0     )
+> min response time                                     -3 (OK=-3     KO=-     )
+> max response time                                   6520 (OK=6520   KO=-     )
+> mean response time                                    35 (OK=35     KO=-     )
+> std deviation                                        365 (OK=365    KO=-     )
+> response time 50th percentile                          0 (OK=0      KO=-     )
+> response time 75th percentile                          0 (OK=0      KO=-     )
+> response time 95th percentile                          1 (OK=1      KO=-     )
+> response time 99th percentile                        728 (OK=730    KO=-     )
+> mean requests/sec                                10329.114 (OK=10329.114 KO=-     )
+---- Response Time Distribution ------------------------------------------------
+> t < 800 ms                                        808326 ( 99%)
+> 800 ms < t < 1200 ms                                1979 (  0%)
+> t > 1200 ms                                         5695 (  1%)
+> failed                                                 0 (  0%)
+
+```
+We could see that max response time and 99th percentile time grow significantly.
 
 There are no requirements on peak load so it is difficult to say if 9000 concurrent users is enough.
 Better hardware will provide better results.
