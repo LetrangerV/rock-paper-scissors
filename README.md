@@ -10,6 +10,7 @@
 * it doesn't make sense to have common transition probability matrix for all users since each user has it's own
 non-random distribution of moves which we want to adapt to.
 * deployment configuration is out of scope
+* sending of app metrics like median/percentile response time etc to monitoring systems like Graphite/Graphana is out of scope
 
 ## Configuration
 Except standard spring application properties there are following properties:
