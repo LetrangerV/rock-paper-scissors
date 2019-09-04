@@ -1,21 +1,15 @@
 package com.test.rockpaperscissors.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.test.rockpaperscissors.dto.GameResultDto;
 import com.test.rockpaperscissors.dto.GameStateDto;
 import com.test.rockpaperscissors.dto.UserStats;
 import com.test.rockpaperscissors.model.Context;
-import com.test.rockpaperscissors.model.CurrentState;
-import com.test.rockpaperscissors.model.GameResult;
-import com.test.rockpaperscissors.model.Gesture;
-import com.test.rockpaperscissors.service.GameService;
-import com.test.rockpaperscissors.service.ai.MarkovChain;
+import com.test.rockpaperscissors.service.GameStateProcessor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.web.reactive.socket.CloseStatus;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -23,82 +17,25 @@ import java.io.IOException;
 @Slf4j
 public class RockPaperScissorsWebSocketHandler implements WebSocketHandler {
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
-    private final GameService gameService;
+    private final GameStateProcessor gameStateProcessor;
 
-    public RockPaperScissorsWebSocketHandler(GameService gameService) {
-        this.gameService = gameService;
+    public RockPaperScissorsWebSocketHandler(GameStateProcessor gameStateProcessor) {
+        this.gameStateProcessor = gameStateProcessor;
     }
 
     @Override
     public Mono<Void> handle(WebSocketSession webSocketSession) {
-        return webSocketSession.receive() //access the stream of inbound messages
-        .doOnNext(message -> {
-            final String text = message.getPayloadAsText();
-            GameStateDto gameStateDto = readMessage(text);
-            switch (gameStateDto.getState()) {
-                case START:
-                    log.debug("START GAME! WOOHOOO!"); //todo make logging async
-                    final MarkovChain markovChain = new MarkovChain();
-                    final Context sessionContext = new Context(
-                            markovChain.getTransitionProbabilities(),
-                            new CurrentState(Gesture.NONE, Gesture.NONE),
-                            new UserStats(0L, 0L, 0L, 0L)
-                    );
-                    webSocketSession.getAttributes().put(webSocketSession.getId(), sessionContext);
-                    break;
-                case IN_PROGRESS:
-                    log.debug("PLAY GAME! WOOHOOO!");
-                    final String sessionId = webSocketSession.getId();
-                    final Context sessionContext1 = (Context) webSocketSession.getAttributes().get(sessionId);
-                    final UserStats currentStats = sessionContext1.getUserStats();
-                    GameResultDto gameResult = produceGameResult(sessionContext1, gameStateDto);
+        final Flux<WebSocketMessage> flux = webSocketSession.receive()
+                .doOnNext(message -> {
+                    final String text = message.getPayloadAsText();
+                    GameStateDto gameStateDto = readMessage(text);
+                    gameStateProcessor.process(webSocketSession, gameStateDto);
+                }).map(message -> {
+                    final Context sessionContext = (Context) webSocketSession.getAttributes().get(webSocketSession.getId());
+                    return webSocketSession.textMessage(writeMessage(sessionContext.getUserStats()));
+                });
 
-                    updateUserStats(gameResult, currentStats);
-                    log.debug("Current statistics: {}", currentStats);
-                    break;
-                case END:
-                    log.debug("END GAME! WOOHOOO!");
-                    final Context endGameContext = (Context) webSocketSession.getAttributes().get(webSocketSession.getId());
-                    log.debug("Your final statistics: {}", endGameContext.getUserStats());
-                    webSocketSession.close(CloseStatus.NORMAL);
-                    break;
-                default:
-                    throw new RuntimeException("Unsupported game state.");
-            }
-        }) //do something with each message
-                .doOnError((ex) -> log.error("There was an error: ", ex))
-                .map(WebSocketMessage::getPayloadAsText)
-                .then(); //return a Mono<Void that completes when receiving completes
-    }
-
-    private GameResultDto produceGameResult(Context sessionContext, GameStateDto gameStateDto) {
-        Pair<Gesture, GameResult> result = gameService.play(sessionContext, gameStateDto.getUserInput());
-        log.debug(
-                String.format("Player: %s; Computer: %s; Your result: %s",
-                        gameStateDto.getUserInput(), result.getLeft(), result.getRight())
-        );
-        return GameResultDto.builder()
-                .yourInput(gameStateDto.getUserInput())
-                .computerInput(result.getLeft())
-                .result(result.getRight())
-                .build();
-    }
-
-    private void updateUserStats(GameResultDto gameResult, UserStats currentStats) {
-        currentStats.setTotalGames(currentStats.getTotalGames() + 1);
-        switch (gameResult.getResult()) {
-            case WON:
-                currentStats.setUserWon(currentStats.getUserWon() + 1);
-                break;
-            case TIED:
-                currentStats.setTied(currentStats.getTied() + 1);
-                break;
-            case LOST:
-                currentStats.setComputerWon(currentStats.getComputerWon() + 1);
-                break;
-            default:
-                throw new RuntimeException("Unexpected game result when gathering statistics");
-        }
+        return webSocketSession.send(flux);
     }
 
     private GameStateDto readMessage(String message) {
@@ -109,5 +46,11 @@ public class RockPaperScissorsWebSocketHandler implements WebSocketHandler {
         }
     }
 
-
+    private String writeMessage(UserStats message) {
+        try {
+            return JSON_MAPPER.writeValueAsString(message);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

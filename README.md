@@ -20,6 +20,8 @@ Decay in range from 0 to 1 -> model would forget earlier observations and adapt 
 ## Build
 `./mvnw clean package` under JDK 11
 
+For integration testing, run server with command below and then run `com.test.rockpaperscissors.client.RockPaperScissorsTestClientWebSocket` class.
+
 ## Run
 `java -jar rock-paper-scissors-{version}.jar` under JRE 11
 

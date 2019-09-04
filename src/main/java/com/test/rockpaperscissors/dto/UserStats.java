@@ -2,16 +2,18 @@ package com.test.rockpaperscissors.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserStats {
-    private Long totalGames;
-    private Long userWon;
-    private Long tied;
-    private Long computerWon;
+    private long totalGames;
+    private long userWon;
+    private long tied;
+    private long computerWon;
 
     @Override
     public String toString() {

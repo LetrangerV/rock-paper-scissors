@@ -2,6 +2,7 @@ package com.test.rockpaperscissors.config;
 
 import com.test.rockpaperscissors.controller.RockPaperScissorsWebSocketHandler;
 import com.test.rockpaperscissors.service.GameService;
+import com.test.rockpaperscissors.service.GameStateProcessor;
 import com.test.rockpaperscissors.service.HumanAdaptedGameService;
 import com.test.rockpaperscissors.service.WinnerCalculator;
 import com.test.rockpaperscissors.service.ai.*;
@@ -66,8 +67,13 @@ public class GameConfiguration {
     }
 
     @Bean
-    RockPaperScissorsWebSocketHandler reactiveWebSocketHandler(GameService gameService) {
-        return new RockPaperScissorsWebSocketHandler(gameService);
+    GameStateProcessor gameStateProcessor(GameService gameService) {
+        return new GameStateProcessor(gameService);
+    }
+
+    @Bean
+    RockPaperScissorsWebSocketHandler reactiveWebSocketHandler(GameStateProcessor gameStateProcessor) {
+        return new RockPaperScissorsWebSocketHandler(gameStateProcessor);
     }
 
     @Bean
