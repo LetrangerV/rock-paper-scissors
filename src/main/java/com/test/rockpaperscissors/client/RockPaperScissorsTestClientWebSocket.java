@@ -6,7 +6,6 @@ import com.test.rockpaperscissors.dto.GameState;
 import com.test.rockpaperscissors.dto.GameStateDto;
 import com.test.rockpaperscissors.model.Gesture;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
 import reactor.core.publisher.Flux;
@@ -58,8 +57,11 @@ public class RockPaperScissorsTestClientWebSocket {
                         )
                         )
                         .thenMany(session.receive()
-                                .map(WebSocketMessage::getPayloadAsText)
-                                .log())
+                                .map(webSocketMessage -> {
+                                    final String text = webSocketMessage.getPayloadAsText();
+                                    log.info("Received message from server: {}", text);
+                                    return text;
+                                }))
                         .then())
                 .block(Duration.ofSeconds(5L));
     }
