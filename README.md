@@ -25,6 +25,46 @@ For integration testing, run server with command below and then run `com.test.ro
 ## Run
 `java -jar rock-paper-scissors-{version}.jar` under JRE 11
 
+## Interface
+Protocol: Websockets.
+
+In order to start the game client should open websocket at `ws://${server}:${port}/rock-paper-scissors`
+
+Client message format:
+1. Start the game
+```json
+{
+  "state": "START",
+  "userInput": "NONE"
+}
+```
+2. Play the game. Sample json payload is below. Possible values for userInput: `ROCK`, `PAPER`, `SCISSORS`.
+```json
+{
+  "state": "IN_PROGRESS",
+  "userInput": "ROCK"
+}
+```
+3. End the game:
+```json
+{
+  "state": "END",
+  "userInput": "NONE"
+}
+```
+
+Sample JSON for server responses contain current statistics for user:
+```json
+{
+  "totalGames": 100,
+  "userWon": 20,
+  "tied": 30,
+  "computerWon": 50
+}
+```
+
+**Important**: first client message must be START GAME message. Otherwise validation error occurs.
+
 ## Performance
 Tested on Intel Core i7-4720HQ @ 2.60GHz with 16 GB RAM.
 Gatling was used for load/performance testing.

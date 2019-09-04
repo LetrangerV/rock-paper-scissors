@@ -21,7 +21,6 @@ public class GameStateProcessor {
         this.gameService = gameService;
     }
 
-    //todo document API protocol
     public void process(WebSocketSession webSocketSession,
                         @NonNull GameStateDto gameStateDto) {
         if (gameStateDto.getState() == null) {
