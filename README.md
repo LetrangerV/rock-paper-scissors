@@ -1,5 +1,9 @@
 # Rock-paper-scissors web application
 
+Popular Rock-paper-scissors game to play versus computer. Markov chain is used to implement AI. AI learns from 
+your previous moves and exploits human's imperfect random number generation, so some outcomes are
+more likely to happen then other.
+
 ## Technical stack
 * Java 11 (yes, we have Java 12 already but 11 is LTS while 12 is not)
 * Spring Boot with Netty as application server
@@ -119,6 +123,8 @@ We could see that max response time and 99th percentile time grow significantly.
 
 There are no requirements on peak load so it is difficult to say if 9000 concurrent users is enough.
 Better hardware will provide better results.
+
+Also you could any number instances you want behind load balancer to get required throughput.
 
 ### Environment setup for running Gatling script:
 1. Install Scala (tested on 2.13.0) https://www.scala-lang.org/download/ and add it to PATH environment variable

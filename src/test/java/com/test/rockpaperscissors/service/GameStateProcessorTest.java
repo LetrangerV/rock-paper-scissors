@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,8 +55,28 @@ public class GameStateProcessorTest {
 
         underTest.process(session, new GameStateDto(GameState.START, null));
 
-        verify(session).getAttributes();
+        verify(session, times(2)).getAttributes();
         assertNotNull(attributesMap.get("abc123"));
+    }
+
+    @Test
+    public void testProcessInvalidStartWithInProgress() {
+        final WebSocketSession session = mock(WebSocketSession.class);
+        final HashMap<String, Object> attributesMap = new HashMap<>();
+        when(session.getAttributes()).thenReturn(attributesMap);
+        when(session.getId()).thenReturn("abc123");
+
+        Assertions.assertThatIllegalStateException().isThrownBy(() -> underTest.process(session, new GameStateDto(GameState.IN_PROGRESS, null)));
+    }
+
+    @Test
+    public void testProcessInvalidStartWithEnd() {
+        final WebSocketSession session = mock(WebSocketSession.class);
+        final HashMap<String, Object> attributesMap = new HashMap<>();
+        when(session.getAttributes()).thenReturn(attributesMap);
+        when(session.getId()).thenReturn("abc123");
+
+        Assertions.assertThatIllegalStateException().isThrownBy(() -> underTest.process(session, new GameStateDto(GameState.END, null)));
     }
 
     @Test

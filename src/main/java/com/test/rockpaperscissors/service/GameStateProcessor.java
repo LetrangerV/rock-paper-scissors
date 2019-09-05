@@ -1,6 +1,7 @@
 package com.test.rockpaperscissors.service;
 
 import com.test.rockpaperscissors.dto.GameResultDto;
+import com.test.rockpaperscissors.dto.GameState;
 import com.test.rockpaperscissors.dto.GameStateDto;
 import com.test.rockpaperscissors.dto.UserStats;
 import com.test.rockpaperscissors.model.Context;
@@ -23,39 +24,49 @@ public class GameStateProcessor {
 
     public void process(WebSocketSession webSocketSession,
                         @NonNull GameStateDto gameStateDto) {
-        if (gameStateDto.getState() == null) {
+        final GameState gameState = gameStateDto.getState();
+        if (gameState == null) {
             throw new IllegalArgumentException("Can't process null game state");
         }
 
-        //todo validate if game started
-        switch (gameStateDto.getState()) {
+        final String sessionId = webSocketSession.getId();
+        final Context context = (Context) webSocketSession.getAttributes().get(sessionId);
+        validateGameStarted(gameState, context);
+
+        switch (gameState) {
             case START:
                 log.debug("START GAME! WOOHOOO!");
-                final MarkovChain markovChain = new MarkovChain();
-                final Context sessionContext = new Context(
-                        markovChain.getTransitionProbabilities(),
-                        new CurrentState(Gesture.NONE, Gesture.NONE),
-                        new UserStats(0L, 0L, 0L, 0L)
-                );
-                webSocketSession.getAttributes().put(webSocketSession.getId(), sessionContext);
+                createNewSessionContextForUser(webSocketSession, sessionId);
                 break;
             case IN_PROGRESS:
                 log.debug("PLAY GAME! WOOHOOO!");
-                final String sessionId = webSocketSession.getId();
-                final Context context = (Context) webSocketSession.getAttributes().get(sessionId);
                 final UserStats currentStats = context.getUserStats();
                 GameResultDto gameResult = produceGameResult(context, gameStateDto);
-
                 updateUserStats(gameResult, currentStats);
                 log.debug("Current statistics: {}", currentStats);
                 break;
             case END:
-                final Context endGameContext = (Context) webSocketSession.getAttributes().get(webSocketSession.getId());
-                log.debug("Your final statistics: {}", endGameContext.getUserStats());
+                log.debug("Your final statistics: {}", context.getUserStats());
                 break;
             default:
                 throw new RuntimeException("Unsupported game state.");
         }
+    }
+
+    private void validateGameStarted(GameState gameState, Context context) {
+        if (context == null && !GameState.START.equals(gameState)) {
+            throw new IllegalStateException(String.format("Can't start game with state: %s", gameState));
+        }
+    }
+
+    private void createNewSessionContextForUser(WebSocketSession webSocketSession, String sessionId) {
+        final MarkovChain markovChain = new MarkovChain();
+        final Context sessionContext = new Context(
+                markovChain.getTransitionProbabilities(),
+                new CurrentState(Gesture.NONE, Gesture.NONE),
+                new UserStats(0L, 0L, 0L, 0L)
+        );
+        webSocketSession.getAttributes().put(sessionId, sessionContext);
     }
 
     private GameResultDto produceGameResult(Context sessionContext, GameStateDto gameStateDto) {
