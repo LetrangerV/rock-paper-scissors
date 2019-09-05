@@ -24,10 +24,15 @@ Decay in range from 0 to 1 -> model would forget earlier observations and adapt 
 ## Build
 `./mvnw clean package` under JDK 11
 
-For integration testing, run server with command below and then run `com.test.rockpaperscissors.client.RockPaperScissorsTestClientWebSocket` class.
+For integration testing, run server and then run test client as described below.
 
 ## Run
-`java -jar rock-paper-scissors-{version}.jar` under JRE 11
+### Server
+`java -jar rock-paper-scissors-server-{version}.jar` under JRE 11
+### Test client
+Runs request in threads specified via `threads` JVM argument. `tasks` argument sets total number of tasks/users. 
+Default values are 10 threads and 20 tasks/users.
+`java -Dthreads=11 -Dtasks=19 -jar testclient-{version}-SNAPSHOT.jar`
 
 ## Interface
 Protocol: Websockets.
