@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!--for production usage should be something like /var/log/rockpaperscissors/rockpaperscissors.log-->
+    <property name="HOME_LOG" value="logs/app.log"/>
+
+    <appender name="CONSOLE"
+              class="ch.qos.logback.core.ConsoleAppender" target="System.out">
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d %p %c{1.} [%t] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE-ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${HOME_LOG}</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/archived/app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- each archived file, size max 10MB -->
+            <maxFileSize>100MB</maxFileSize>
+            <!-- total size of all archive files, if total size > 20GB,
+				it will delete old archived file -->
+            <totalSizeCap>20GB</totalSizeCap>
+            <maxHistory>14</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d %p %c{1.} [%t] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold> <!-- default 20, means drop lower event when has 20% capacity remaining -->
+        <appender-ref ref="FILE-ROLLING" />
+        <queueSize>10000</queueSize> <!-- default 256 -->
+        <includeCallerData>false</includeCallerData><!-- default false -->
+        <neverBlock>true</neverBlock><!-- default false, set to true to cause
+            the Appender not block the application and just drop the messages -->
+    </appender>
+
+    <logger name="com.test.rockpaperscissors" level="info" additivity="false">
+        <appender-ref ref="FILE-ROLLING"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+    <logger name="org.springframework" level="info" additivity="false">
+        <appender-ref ref="FILE-ROLLING"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <root level="info">
+        <appender-ref ref="ASYNC_FILE"/>
+    </root>
+
+</configuration>
