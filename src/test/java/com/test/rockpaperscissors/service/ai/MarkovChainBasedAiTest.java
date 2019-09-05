@@ -48,7 +48,6 @@ public class MarkovChainBasedAiTest {
     public void testCalculateResultSecondRound() {
         Context sessionContext = mock(Context.class);
         when(sessionContext.getPreviousState()).thenReturn(mock(CurrentState.class));
-        when(randomAi.calculateAiGesture(sessionContext, Gesture.ROCK)).thenReturn(Gesture.PAPER);
 
         when(markovChainBasedPredictor.predictPlayerMove(any(Context.class))).thenReturn(Gesture.PAPER);
         Gesture result = underTest.calculateAiGesture(sessionContext, Gesture.ROCK);
