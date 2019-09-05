@@ -11,7 +11,9 @@ public class MarkovChainBasedAi implements GameAi {
     private final RandomAi randomAi;
     private final TransitionMatrixUpdater matrixUpdater;
 
-    public MarkovChainBasedAi(MarkovChainBasedPredictor markovChainBasedPredictor, RandomAi randomAi, TransitionMatrixUpdater matrixUpdater) {
+    public MarkovChainBasedAi(MarkovChainBasedPredictor markovChainBasedPredictor,
+                              RandomAi randomAi,
+                              TransitionMatrixUpdater matrixUpdater) {
         this.markovChainBasedPredictor = markovChainBasedPredictor;
         this.randomAi = randomAi;
         this.matrixUpdater = matrixUpdater;

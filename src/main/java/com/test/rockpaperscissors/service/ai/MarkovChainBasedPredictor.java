@@ -17,13 +17,16 @@ public class MarkovChainBasedPredictor {
     }
 
     public Gesture predictPlayerMove(Context sessionContext) {
-        Map<Gesture, GestureStatistics> gestureWithStats = sessionContext.getTransitionProbabilities().get(sessionContext.getPreviousState());
+        Map<Gesture, GestureStatistics> gestureWithStats =
+                sessionContext.getTransitionProbabilities().get(sessionContext.getPreviousState());
         if (gestureWithStats == null) { //first round with NONE, NONE as previous input
             return randomAi.calculateAiGesture(sessionContext, sessionContext.getPreviousState().getFirst());
         }
 
-        Double maxProbability = gestureWithStats.values().stream().map(GestureStatistics::getProbability).max(Comparator.comparingDouble(x -> x)).orElse(0d);
-        Double minProbability = gestureWithStats.values().stream().map(GestureStatistics::getProbability).min(Comparator.comparingDouble(x -> x)).orElse(0d);
+        Double maxProbability = gestureWithStats.values().stream().map(GestureStatistics::getProbability)
+                .max(Comparator.comparingDouble(x -> x)).orElse(0d);
+        Double minProbability = gestureWithStats.values().stream().map(GestureStatistics::getProbability)
+                .min(Comparator.comparingDouble(x -> x)).orElse(0d);
 
         if (compareDoublesWithPrecision(maxProbability, minProbability)) {
             return randomAi.calculateAiGesture(sessionContext, sessionContext.getPreviousState().getFirst());

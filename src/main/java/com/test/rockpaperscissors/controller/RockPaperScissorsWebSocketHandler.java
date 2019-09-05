@@ -31,7 +31,8 @@ public class RockPaperScissorsWebSocketHandler implements WebSocketHandler {
                     GameStateDto gameStateDto = readMessage(text);
                     gameStateProcessor.process(webSocketSession, gameStateDto);
                 }).map(message -> {
-                    final Context sessionContext = (Context) webSocketSession.getAttributes().get(webSocketSession.getId());
+                    final Context sessionContext = (Context) webSocketSession.getAttributes()
+                            .get(webSocketSession.getId());
                     return webSocketSession.textMessage(writeMessage(sessionContext.getUserStats()));
                 }).doOnError(exception -> log.error("Unexpected exception: ", exception));
 

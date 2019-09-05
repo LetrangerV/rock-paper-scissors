@@ -6,6 +6,8 @@ import com.test.rockpaperscissors.dto.GameState;
 import com.test.rockpaperscissors.dto.GameStateDto;
 import com.test.rockpaperscissors.model.Gesture;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.reactive.socket.WebSocketMessage;
+import org.springframework.web.reactive.socket.WebSocketSession;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
 import reactor.core.publisher.Flux;
@@ -21,14 +23,17 @@ import java.util.concurrent.Executors;
 public class RockPaperScissorsTestClientWebSocket {
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
     private static final String WS_ROCK_PAPER_SCISSORS_URL = "ws://localhost:8080/rock-paper-scissors";
+    private static final int THREADS_COUNT = 10;
+    private static final int TASK_COUNT = 20;
+    private static final long BLOCK_DURATION_SECONDS = 5L;
 
     public static void main(String[] args) {
 
         WebSocketClient client = new ReactorNettyWebSocketClient();
 
         log.info("Started test client");
-        ExecutorService service = Executors.newFixedThreadPool(10);
-        for (int i = 0; i < 20; i++) {
+        ExecutorService service = Executors.newFixedThreadPool(THREADS_COUNT);
+        for (int i = 0; i < TASK_COUNT; i++) {
             service.submit(() -> {
                 executeSingleClient(client);
             });
@@ -42,18 +47,18 @@ public class RockPaperScissorsTestClientWebSocket {
                 URI.create(WS_ROCK_PAPER_SCISSORS_URL),
                 session -> session.send(
                         Flux.concat(
-                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.START, Gesture.NONE)))),
-                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))),
-                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))),
-                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))),
-                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.SCISSORS)))),
-                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.SCISSORS)))),
-                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.SCISSORS)))),
-                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.SCISSORS)))),
-                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))),
-                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))),
-                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)))),
-                                Mono.just(session.textMessage(writeMessage(new GameStateDto(GameState.END, Gesture.NONE))))
+                                Mono.just(writeStartGameMessage(session)),
+                                Mono.just(writeRockMessage(session)),
+                                Mono.just(writeRockMessage(session)),
+                                Mono.just(writeRockMessage(session)),
+                                Mono.just(writeScissorsMessage(session)),
+                                Mono.just(writeScissorsMessage(session)),
+                                Mono.just(writeScissorsMessage(session)),
+                                Mono.just(writeScissorsMessage(session)),
+                                Mono.just(writeRockMessage(session)),
+                                Mono.just(writeRockMessage(session)),
+                                Mono.just(writeRockMessage(session)),
+                                Mono.just(writeEndGameMessage(session))
                         )
                         )
                         .thenMany(session.receive()
@@ -63,7 +68,23 @@ public class RockPaperScissorsTestClientWebSocket {
                                     return text;
                                 }))
                         .then())
-                .block(Duration.ofSeconds(5L));
+                .block(Duration.ofSeconds(BLOCK_DURATION_SECONDS));
+    }
+
+    private static WebSocketMessage writeEndGameMessage(WebSocketSession session) {
+        return session.textMessage(writeMessage(new GameStateDto(GameState.END, Gesture.NONE)));
+    }
+
+    private static WebSocketMessage writeStartGameMessage(WebSocketSession session) {
+        return session.textMessage(writeMessage(new GameStateDto(GameState.START, Gesture.NONE)));
+    }
+
+    private static WebSocketMessage writeScissorsMessage(WebSocketSession session) {
+        return session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.SCISSORS)));
+    }
+
+    private static WebSocketMessage writeRockMessage(WebSocketSession session) {
+        return session.textMessage(writeMessage(new GameStateDto(GameState.IN_PROGRESS, Gesture.ROCK)));
     }
 
     private static String writeMessage(GameStateDto message) {

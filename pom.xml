@@ -20,6 +20,7 @@
 		<commons-lang3.version>3.9</commons-lang3.version>
 		<spring-boot-starter-integration.version>2.1.6.RELEASE</spring-boot-starter-integration.version>
 		<assertj-core.version>3.13.2</assertj-core.version>
+		<maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
 	</properties>
 
 	<dependencies>
@@ -98,6 +99,28 @@
 						<dirty>-dirty</dirty>
 					</gitDescribe>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>${maven-checkstyle-plugin.version}</version>
+				<configuration>
+					<configLocation>checkstyle/checkstyle.xml</configLocation>
+					<encoding>UTF-8</encoding>
+				</configuration>
+				<executions>
+					<execution>
+						<id>validate</id>
+						<phase>validate</phase>
+						<configuration>
+							<consoleOutput>true</consoleOutput>
+							<failsOnError>true</failsOnError>
+						</configuration>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

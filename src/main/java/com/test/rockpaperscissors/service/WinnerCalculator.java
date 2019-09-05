@@ -5,7 +5,6 @@ import com.test.rockpaperscissors.model.Gesture;
 
 import java.util.Map;
 
-//todo add checkstyle and PMD
 public class WinnerCalculator {
     public static final Map<Gesture, Gesture> WIN_MATRIX = Map.of(
             Gesture.PAPER, Gesture.SCISSORS,

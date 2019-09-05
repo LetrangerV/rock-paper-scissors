@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GestureStatistics {
-    private Double probability = 0.33333333333333;
+    private static final double EQUAL_GESTURE_PROBABILITY = 0.33333333333333;
+    private Double probability = EQUAL_GESTURE_PROBABILITY;
     private Double numberOfObservations = 0d;
 }

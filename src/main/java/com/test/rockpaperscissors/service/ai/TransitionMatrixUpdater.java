@@ -16,7 +16,8 @@ public class TransitionMatrixUpdater {
     }
 
     public synchronized void updateProbabilitiesMatrix(Context sessionContext, Gesture userInput) {
-        Map<Gesture, GestureStatistics> gestureWithStats = sessionContext.getTransitionProbabilities().get(sessionContext.getPreviousState());
+        Map<Gesture, GestureStatistics> gestureWithStats =
+                sessionContext.getTransitionProbabilities().get(sessionContext.getPreviousState());
         if (gestureWithStats == null) {
             log.debug("Can't update transition probability matrix because current state is not present there");
             return;
@@ -33,7 +34,8 @@ public class TransitionMatrixUpdater {
     }
 
     private void updateNumberOfObservations(Gesture userInput, Map<Gesture, GestureStatistics> gestureWithStats) {
-        gestureWithStats.get(userInput).setNumberOfObservations(gestureWithStats.get(userInput).getNumberOfObservations() + 1);
+        gestureWithStats.get(userInput).setNumberOfObservations(
+                gestureWithStats.get(userInput).getNumberOfObservations() + 1);
     }
 
     private void updateProbabilities(Map<Gesture, GestureStatistics> gestureWithStats) {

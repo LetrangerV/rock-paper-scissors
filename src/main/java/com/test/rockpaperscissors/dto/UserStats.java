@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserStats {
+    private static final int PERCENT = 100;
     private long totalGames;
     private long userWon;
     private long tied;
@@ -17,10 +18,11 @@ public class UserStats {
 
     @Override
     public String toString() {
-        return String.format("Total played: %d; You won: %d; Tied: %d; You lost: %d; Winrate: %.2f %%", totalGames, userWon, tied, computerWon, calculateWinrate());
+        return String.format("Total played: %d; You won: %d; Tied: %d; You lost: %d; Winrate: %.2f %%",
+                totalGames, userWon, tied, computerWon, calculateWinrate());
     }
 
     private float calculateWinrate() {
-        return 1.0f * userWon / totalGames * 100;
+        return 1.0f * userWon / totalGames * PERCENT;
     }
 }
